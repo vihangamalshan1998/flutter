@@ -3,10 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 //User Schema
 const userSchema = new Schema({
-    // image : {
-    //     type : String,
-    //     required: false
-    // },
     userName : {
         type : String,
         required: false
@@ -30,6 +26,6 @@ const userSchema = new Schema({
 
 });
 
-const Flowers = mongoose.model("Flowers",flowerSchema);
+const Users = mongoose.model("Users",userSchema);
 
-module.exports = Flowers;
+module.exports = Users;
