@@ -4,7 +4,7 @@ let Flower= require("../models/Flowers");
 // const multer = require('multer');
 // const fs = require('fs');
 
-//add new Flower
+//add a new Flower
 router.route("/addFlower").post((req, res) => {
     const flowerName = req.body.flowerName;
     const commonNames = req.body.commonNames;
