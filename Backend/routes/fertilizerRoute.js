@@ -1,0 +1,113 @@
+const router = require('express').Router()
+const Fertilizer = require('../models/fertilizer')
+const path = require('path')
+const multer = require('multer')
+const fs = require('fs')
+
+//Multer for file storage
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/fertilizer')
+  },
+  filename: function (req, file, cb) {
+    console.log(file.originalname)
+    let today = new Date()
+    let dd = String(today.getDate()).padStart(2, '0')
+    let mm = String(today.getMonth() + 1).padStart(2, '0')
+    let yyyy = today.getFullYear()
+    const fileExt = path.extname(file.originalname)
+    const fileText =
+      Date.now() +
+      '-' +
+      file.originalname +
+      '-' +
+      dd +
+      '-' +
+      mm +
+      '-' +
+      yyyy +
+      fileExt
+    cb(null, fileText)
+  },
+})
+
+var upload = multer({
+  storage: storage,
+})
+
+//add new Fertilizer
+router.route('/add').post(upload.single('picture'), (req, res) => {
+  const { fertilizer_Name, fertilizer_code, weight, description } = req.body
+  const picture = req.file.filename
+  const newFertilizer = new Fertilizer({
+    fertilizer_Name,
+    fertilizer_code,
+    weight,
+    picture,
+    description,
+  })
+  newFertilizer
+    .save()
+    .then(() => {
+      console.log('New Fertilizer Added')
+      res.json('New Fertilizer Added')
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
+
+//get all Fertilizer details
+router.route('/GetAllFertilizer').get((req, res) => {
+  Fertilizer.find({})
+    .then((events) => {
+      res.json(events)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
+
+//get Teacher details using Teacher id
+router.route('/GetFertilizer/:id').get((req, res) => {
+  let fertilizerID = req.params.id
+  Fertilizer.findById(fertilizerID)
+    .then((subject) => {
+      res.json(subject)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
+
+//update only teacher details without picture using teacher id
+router.route('/UpdateData/:id').put(async (req, res) => {
+    let fertilizerID = req.params.id
+    console.log(req.body);
+  const {
+    fertilizer_Name,
+    fertilizer_code,
+    weight,
+    picture,
+    description,
+  } = req.body
+  const updatefertilizer = {
+    fertilizer_Name,
+    fertilizer_code,
+    weight,
+    picture,
+    description,
+  }
+  const update = await Fertilizer.findByIdAndUpdate(
+    fertilizerID,
+    updatefertilizer,
+  )
+    .then(() => {
+      res.status(200).send({ status: 'Fertilizer Updated' })
+    })
+    .catch((err) => {
+      console.log(err)
+      res.status(500).send({ status: 'Error with Updating data' })
+    })
+})
+module.exports = router
