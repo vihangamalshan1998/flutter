@@ -68,7 +68,7 @@ router.route('/GetAllFertilizer').get((req, res) => {
     })
 })
 
-//get Teacher details using Teacher id
+//get Fertilizer details using Fertilizer id
 router.route('/GetFertilizer/:id').get((req, res) => {
   let fertilizerID = req.params.id
   Fertilizer.findById(fertilizerID)
@@ -80,22 +80,14 @@ router.route('/GetFertilizer/:id').get((req, res) => {
     })
 })
 
-//update only teacher details without picture using teacher id
+//update only Fertilizer details without picture using Fertilizer id
 router.route('/UpdateData/:id').put(async (req, res) => {
-    let fertilizerID = req.params.id
-    console.log(req.body);
-  const {
-    fertilizer_Name,
-    fertilizer_code,
-    weight,
-    picture,
-    description,
-  } = req.body
+  let fertilizerID = req.params.id
+  const { fertilizer_Name, fertilizer_code, weight, description } = req.body
   const updatefertilizer = {
     fertilizer_Name,
     fertilizer_code,
     weight,
-    picture,
     description,
   }
   const update = await Fertilizer.findByIdAndUpdate(
@@ -108,6 +100,59 @@ router.route('/UpdateData/:id').put(async (req, res) => {
     .catch((err) => {
       console.log(err)
       res.status(500).send({ status: 'Error with Updating data' })
+    })
+})
+
+//update Fertilizer with new image
+router
+  .route('/updateWithImage/:id')
+  .put(upload.single('picture'), (req, res) => {
+    let fertilizerID = req.params.id
+    const { fertilizer_Name, fertilizer_code, weight, description } = req.body
+    const picture = req.file.filename
+    const updatefertilizer = {
+      fertilizer_Name,
+      fertilizer_code,
+      weight,
+      picture,
+      description,
+    }
+    const update = Fertilizer.findByIdAndUpdate(fertilizerID, updatefertilizer)
+      .then(() => {
+        res.status(200).send({ status: 'Fertilizer Updated' })
+        // fs.unlink(
+        //   'C:/Users/JontyRulz/Desktop/SPM-FINAL_BACKEND/uploads/teachers/' +
+        //     picturename,
+        //   function (err) {
+        //     if (err) throw err
+        //     console.log('File deleted!')
+        //   },
+        // )
+      })
+      .catch((err) => {
+        console.log(err)
+        res.status(500).send({ status: 'Error with Updating data' })
+      })
+  })
+
+//delete the Fertilizer with file
+router.route('/Delete/:id').delete(async (req, res) => {
+  let fertilizerID = req.params.id
+  await Fertilizer.findByIdAndDelete(fertilizerID)
+    .then(() => {
+    //   fs.unlink(
+    //     'C:/Users/JontyRulz/Desktop/SPM-FINAL_BACKEND/uploads/teachers/' +
+    //       filename,
+    //     function (err) {
+    //       if (err) throw err
+    //       console.log('File deleted!')
+    //     },
+    //   )
+      res.status(200).send({ status: 'Fertilizer Deleted' })
+    })
+    .catch((err) => {
+      console.log(err)
+      res.status(500).send({ status: 'Error with deleting data' })
     })
 })
 module.exports = router
