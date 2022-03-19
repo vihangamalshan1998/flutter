@@ -1,3 +1,4 @@
+import 'package:frontend_mobile/screens/Login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_mobile/screens/AddFlower.dart';
 import 'package:provider/provider.dart';
@@ -8,25 +9,17 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (BuildContext context) {  },
-      child: MaterialApp(
-     title: 'My Store',
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Mal Mal Application',
       theme: ThemeData(
-        primarySwatch: Colors.amber,
-      ), 
-      initialRoute: AddFlower.routeName,
-      routes: {
-        AddFlower.routeName:(context) => const AddFlower(),
-
-      },
+        primarySwatch: Colors.blue,
       ),
+      home: const Login(),
     );
-    
   }
 }
 
