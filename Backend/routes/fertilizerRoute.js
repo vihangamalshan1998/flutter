@@ -36,14 +36,12 @@ var upload = multer({
 })
 
 //add new Fertilizer
-router.route('/add').post(upload.single('picture'), (req, res) => {
+router.route('/add').post((req, res) => {
   const { fertilizer_Name, fertilizer_code, weight, description } = req.body
-  const picture = req.file.filename
   const newFertilizer = new Fertilizer({
     fertilizer_Name,
     fertilizer_code,
     weight,
-    picture,
     description,
   })
   newFertilizer
@@ -140,14 +138,14 @@ router.route('/Delete/:id').delete(async (req, res) => {
   let fertilizerID = req.params.id
   await Fertilizer.findByIdAndDelete(fertilizerID)
     .then(() => {
-    //   fs.unlink(
-    //     'C:/Users/JontyRulz/Desktop/SPM-FINAL_BACKEND/uploads/teachers/' +
-    //       filename,
-    //     function (err) {
-    //       if (err) throw err
-    //       console.log('File deleted!')
-    //     },
-    //   )
+      //   fs.unlink(
+      //     'C:/Users/JontyRulz/Desktop/SPM-FINAL_BACKEND/uploads/teachers/' +
+      //       filename,
+      //     function (err) {
+      //       if (err) throw err
+      //       console.log('File deleted!')
+      //     },
+      //   )
       res.status(200).send({ status: 'Fertilizer Deleted' })
     })
     .catch((err) => {
