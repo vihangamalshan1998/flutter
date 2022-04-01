@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:frontend_mobile/exceptions/Exceptions.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -22,10 +21,15 @@ class Fertilizer with ChangeNotifier {
 }
 
 class Fertilizers with ChangeNotifier {
-  List<Fertilizer> _fertilizers = [];
+  List<Fertilizer> fertilizers = [];
+  Fertilizer fertilizer = Fertilizer('', '', '', '', '');
 
   List<Fertilizer> getFertilizers() {
-    return _fertilizers;
+    return fertilizers;
+  }
+
+  Fertilizer getFertilizer() {
+    return fertilizer;
   }
 
   Future<void> fetchFertilizers() async {
@@ -50,7 +54,7 @@ class Fertilizers with ChangeNotifier {
               );
             },
           );
-          _fertilizers = loadedFertilizers;
+          fertilizers = loadedFertilizers;
           notifyListeners();
       }
       notifyListeners();
@@ -59,85 +63,105 @@ class Fertilizers with ChangeNotifier {
     }
   }
 
-  Future<int> createFertilizer(
+  Future<void> fetchFertilizer(id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8070/fertilizer/GetFertilizer/$id'),
+      );
+      switch (response.statusCode) {
+        case 200:
+          final extractedCode = json.decode(response.body);
+          final Fertilizer loadedFertilizer;
+          loadedFertilizer = Fertilizer(
+            extractedCode['_id'],
+            extractedCode['fertilizer_Name'],
+            extractedCode['fertilizer_code'],
+            extractedCode['weight'],
+            extractedCode['description'],
+          );
+          fertilizer = loadedFertilizer;
+          notifyListeners();
+      }
+      notifyListeners();
+    } on SocketException {
+      throw FetchDataException('No Internet connection');
+    }
+  }
+
+  Future<dynamic> createFertilizer(
     name,
     code,
     weight,
     description,
   ) async {
-    Map<String, dynamic> _body = {
+    Map<String, dynamic> body = {
       "fertilizer_Name": name,
       "fertilizer_code": code,
       "weight": weight,
       "description": description,
     };
-
-    final encodedData = json.encode(_body);
-
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:8070/fertilizer/add'),
-        body: encodedData,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(body),
       );
-      switch (response.statusCode) {
-        case 201:
-          return 0;
-        case 400:
-          throw BadRequestException(
-              'Seems something went wrong. Try again later');
-        default:
-          throw FetchDataException(' ' + response.statusCode.toString());
+      notifyListeners();
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return json.decode(response.body)['message'].toString();
       }
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }
   }
 
-  Future<int> updateFertilizer(
+  Future<dynamic> updateFertilizer(
     id,
     name,
     code,
     weight,
     description,
   ) async {
-    Map<String, dynamic> _body = {
+    Map<String, dynamic> body = {
       "fertilizer_Name": name,
       "fertilizer_code": code,
       "weight": weight,
       "description": description,
     };
-
-    final encodedData = json.encode(_body);
-
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8070/fertilizer/UpdateData/$id'),
-        body: encodedData,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(body),
       );
-      switch (response.statusCode) {
-        case 201:
-          return 0;
-        case 400:
-          throw BadRequestException(
-              'Seems something went wrong. Try again later');
-        default:
-          throw FetchDataException(' ' + response.statusCode.toString());
+      notifyListeners();
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return json.decode(response.body)['message'].toString();
       }
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }
   }
 
-  Future<void> deleteFertilizer(id) async {
+  Future<dynamic> deleteFertilizer(id) async {
     try {
       final response = await http.delete(
         Uri.parse('http://10.0.2.2:8070/fertilizer/Delete/$id'),
       );
-      switch (response.statusCode) {
-        case 200:
-          notifyListeners();
-      }
       notifyListeners();
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return json.decode(response.body)['message'].toString();
+      }
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }

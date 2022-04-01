@@ -42,7 +42,7 @@ class FertilizerTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    fertilizer.weight,
+                    '${fertilizer.weight} kg',
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontWeight: FontWeight.normal,

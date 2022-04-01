@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_mobile/providers/fertilizer_provider.dart';
+import 'package:frontend_mobile/screens/Fertilizer/Widgets/snack_bar.dart';
+import 'package:provider/provider.dart';
 
 class AddEditFertilizerScreen extends StatefulWidget {
   const AddEditFertilizerScreen({Key? key}) : super(key: key);
@@ -16,15 +19,24 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
   TextEditingController fertilizerCode = TextEditingController();
   TextEditingController fertilizerWeight = TextEditingController();
   TextEditingController fertilizerDescription = TextEditingController();
+  late String fertilizerId;
   late bool create;
   @override
   void initState() {
     create = true;
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    Fertilizer fertilizer = Provider.of<Fertilizers>(context).getFertilizer();
+    fertilizer.id != '' ? create = false : create = true;
+    fertilizerName.text = fertilizer.name;
+    fertilizerCode.text = fertilizer.code;
+    fertilizerWeight.text = fertilizer.weight;
+    fertilizerDescription.text = fertilizer.description;
+    fertilizerId = fertilizer.id;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -44,7 +56,7 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    'Create Fertilizer',
+                    create ? 'Create Fertilizer' : 'Update Fertilizer',
                     style: Theme.of(context).textTheme.headline4,
                   ),
                 ),
@@ -59,7 +71,9 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
                     minWidth: double.infinity,
                     child: MaterialButton(
                       color: Theme.of(context).primaryColor,
-                      onPressed: () {},
+                      onPressed: () {
+                        create ? createFertilizer() : updateFertilizer();
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -123,7 +137,7 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
       child: TextFormField(
         keyboardType: TextInputType.number,
         validator: (value) {},
-        controller: fertilizerName,
+        controller: fertilizerWeight,
         textInputAction: TextInputAction.next,
         onEditingComplete: () => node.nextFocus(),
         decoration: const InputDecoration(
@@ -141,7 +155,7 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
       child: TextFormField(
         keyboardType: TextInputType.text,
         validator: (value) {},
-        controller: fertilizerName,
+        controller: fertilizerDescription,
         textInputAction: TextInputAction.next,
         onEditingComplete: () => node.nextFocus(),
         decoration: const InputDecoration(
@@ -153,7 +167,53 @@ class _AddEditFertilizerScreenState extends State<AddEditFertilizerScreen> {
     );
   }
 
-  createFertilizer() {
-    
+  createFertilizer() async {
+    await Provider.of<Fertilizers>(context, listen: false)
+        .createFertilizer(
+      fertilizerName.text,
+      fertilizerCode.text,
+      fertilizerWeight.text,
+      fertilizerDescription.text,
+    )
+        .then(
+      (result) {
+        Navigator.pop(context);
+        if (result is String) {
+          ScaffoldMessenger.of(context).showSnackBar(successSnackBar(result));
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      onError: (message) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(message));
+      },
+    );
+  }
+
+  updateFertilizer() async {
+    await Provider.of<Fertilizers>(context, listen: false)
+        .updateFertilizer(
+      fertilizerId,
+      fertilizerName.text,
+      fertilizerCode.text,
+      fertilizerWeight.text,
+      fertilizerDescription.text,
+    )
+        .then(
+      (result) {
+        Navigator.pop(context);
+        if (result is String) {
+          ScaffoldMessenger.of(context).showSnackBar(successSnackBar(result));
+        } else {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
+      },
+      onError: (message) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(message));
+      },
+    );
   }
 }
