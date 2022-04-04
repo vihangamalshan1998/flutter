@@ -21,11 +21,23 @@ class MyApp extends StatelessWidget {
       child: Consumer<Fertilizers>(
         builder: (ctx, authData, _) => GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Mal Mal',
+          title: 'My Store',
           theme: ThemeData(
             primarySwatch: Colors.amber,
           ),
+          // TODO:Remove below line
           home: const SampleHomeScreen(),
+          // TODO:Uncomment below lines
+          // initialRoute: Login.routeName,
+          // routes: {
+          //   AddFlower.routeName: (context) => const AddFlower(),
+          //   Login.routeName: (context) => const Login(),
+          //   Signup.routeName: (context) => const Signup(),
+          //   Welcome.routeName: (context) => const Welcome(),
+          //   ViewFlowers.routeName: (context) => const ViewFlowers(),
+          //   DiseaseView.routeName: (context) => const DiseaseView(),
+          //   DiseaseAdd.routeName: (context) => const DiseaseAdd()
+          // },
         ),
       ),
     );
